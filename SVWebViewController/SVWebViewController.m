@@ -20,6 +20,9 @@
 
 @property (nonatomic, strong) UIWebView *webView;
 @property (nonatomic, strong) NSURLRequest *request;
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UILabel *urlLabel;
+;
 
 @end
 
@@ -63,7 +66,34 @@
 
 - (void)viewDidLoad {
 	[super viewDidLoad];
-    [self updateToolbarItems];
+  
+  UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 60)];
+  _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 10, 260, 20)];
+  _titleLabel.tag = 1;
+  _titleLabel.backgroundColor = [UIColor clearColor];
+  _titleLabel.font = [UIFont boldSystemFontOfSize:16];
+  _titleLabel.adjustsFontSizeToFitWidth = NO;
+  _titleLabel.textAlignment = NSTextAlignmentCenter;
+  NSDictionary *textAttributes =  self.navigationController.navigationBar.titleTextAttributes;
+  _titleLabel.textColor = textAttributes[@"NSColor"];
+  _titleLabel.font = textAttributes[@"NSFont"];
+  _titleLabel.highlightedTextColor = [UIColor blackColor];
+  [titleView addSubview:_titleLabel];
+  
+  _urlLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 30, 260, 16)];
+  _urlLabel.tag = 2;
+  _urlLabel.backgroundColor = [UIColor clearColor];
+  _urlLabel.font = [UIFont boldSystemFontOfSize:10];
+  _urlLabel.adjustsFontSizeToFitWidth = NO;
+  _urlLabel.textAlignment = NSTextAlignmentCenter;
+  _urlLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
+  _urlLabel.textColor = [UIColor grayColor];
+  _urlLabel.text = self.request.URL.absoluteString;
+  _urlLabel.highlightedTextColor = [UIColor blackColor];
+  [titleView addSubview:_urlLabel];
+  self.navigationItem.titleView = titleView;
+
+  [self updateToolbarItems];
 }
 
 - (void)viewDidUnload {
@@ -225,11 +255,10 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
 	[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
-    
-    if (self.navigationItem.title == nil) {
-        self.navigationItem.title = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
-    }
-    
+
+    _titleLabel.text = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
+    _urlLabel.text = webView.request.URL.absoluteString;
+  
     [self updateToolbarItems];
 }
 
